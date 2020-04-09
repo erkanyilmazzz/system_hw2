@@ -7,6 +7,7 @@
 #include <fcntl.h>
 #include<string.h>
 #include"arg.h"
+#include"pair.h"
 
 
 void critical(){
@@ -58,11 +59,17 @@ int main(int argc , char ** argv){
 
         printf("\n");
         char buffer[21];
+        struct pair *pairs=malloc(sizeof(struct pair)*10);
         while(read(input_fd,buffer,20)==20){
           buffer[20]='\0';
-          printf("%s\n",buffer );
+          for(i=1;i<=20;++i){
+            if(i%2==0){
+              pairs[i/2].x=buffer[i-1];
+            }
+          }
         }
 
+        free(pairs);
         close(input_fd);
       /**calculation step it is critacal */
       sigset_t blocking_signals;
