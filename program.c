@@ -1,8 +1,17 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include <unistd.h>
+#include <sys/wait.h>
 #include"arg.h"
 
+
+void critical(){
+  int i=0;
+  for(i=0;i<10;++i){
+    printf("%d\n",i);
+    sleep(1);
+  }
+}
 
 int main(int argc , char ** argv){
 
@@ -25,6 +34,27 @@ int main(int argc , char ** argv){
 
   printf("input path\t\t:::%s\noutputh path\t\t:::%s\n",inputPath,outputPath );
 
+
+      /**do some stuf read write whatever*/
+
+
+
+      /**calculation step it is critacal */
+      sigset_t blocking_signals;
+      sigemptyset(&blocking_signals);
+      sigfillset(&blocking_signals);
+      sigprocmask(SIG_BLOCK,&blocking_signals,NULL);
+
+      critical();
+
+      sigprocmask(SIG_UNBLOCK,&blocking_signals,NULL);
+
+
+      /*create temprorary file */
+
+
+
+      /**fork and create other  process*/
   int child_pid=fork();
   if (0==child_pid){
     //this is child proccess
@@ -32,12 +62,19 @@ int main(int argc , char ** argv){
 
 
 
+
+
+
+
     exit(EXIT_SUCCESS);
   }else if (0>child_pid){
     // error
     perror("error while forking\n");
-  }else {
+  }else {/**parent process*/
+    int buffer;
+    wait(&buffer);
     printf("%s %d\n","this is parant proccess pid is ",getpid() );
+
   }
 
 
