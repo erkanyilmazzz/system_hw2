@@ -2,12 +2,16 @@
 #include<stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include<string.h>
 #include"arg.h"
 
 
 void critical(){
   int i=0;
-  for(i=0;i<10;++i){
+  for(i=0;i<0;++i){
     printf("%d\n",i);
     sleep(1);
   }
@@ -35,10 +39,31 @@ int main(int argc , char ** argv){
   printf("input path\t\t:::%s\noutputh path\t\t:::%s\n",inputPath,outputPath );
 
 
+      /**create temp file*/
+      char tmp_path[15]="/tmp/XXXXXX";
+      int temp_fd=mkstemp(tmp_path);
+      printf("generate temp file %s",tmp_path);
+      write(temp_fd,"erkan",strlen("erkan"));
+
+
+
       /**do some stuf read write whatever*/
 
+        /**opening the input file*/
+        int input_fd=open(inputPath,O_RDWR|O_SYNC,0666);
+        if(input_fd<0){
+          perror("error while opening file");
+          exit(-1);
+        }
 
+        printf("\n");
+        char buffer[21];
+        while(read(input_fd,buffer,20)==20){
+          buffer[20]='\0';
+          printf("%s\n",buffer );
+        }
 
+        close(input_fd);
       /**calculation step it is critacal */
       sigset_t blocking_signals;
       sigemptyset(&blocking_signals);
@@ -76,6 +101,17 @@ int main(int argc , char ** argv){
     printf("%s %d\n","this is parant proccess pid is ",getpid() );
 
   }
+
+
+        lseek(temp_fd,SEEK_SET,0);
+
+
+        char buf[15];
+        read(temp_fd,&buf,6);
+        printf("\nyazılan mesaj %s\n",buf );
+        /**unlink and close temp file*/
+        unlink(tmp_path);
+        close(temp_fd);
 
 
   free(inputPath);
