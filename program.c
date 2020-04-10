@@ -19,6 +19,7 @@ void critical(){
 }
 
 int main(int argc , char ** argv){
+  //unit_test_string_to_pair();
 
   char *inputPath;
   char *outputPath;
@@ -58,18 +59,24 @@ int main(int argc , char ** argv){
         }
 
         printf("\n");
+
         char buffer[21];
-        struct pair *pairs=malloc(sizeof(struct pair)*10);
+        struct pair pairs[10];
+        char eq[15];
         while(read(input_fd,buffer,20)==20){
           buffer[20]='\0';
-          for(i=1;i<=20;++i){
-            if(i%2==0){
-              pairs[i/2].x=buffer[i-1];
-            }
+          string_to_pairs(buffer,pairs);
+          int i;
+          for(i=0;i<10;++i){
+              printf("%d nin x i:%d y si %d\n",i,pairs[i].x,pairs[i].y);
           }
+          pairs_to_line_eq(pairs,eq);
+          printf("qeuation is %s\n",eq );
+
+
         }
 
-        free(pairs);
+
         close(input_fd);
       /**calculation step it is critacal */
       sigset_t blocking_signals;
