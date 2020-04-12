@@ -9,5 +9,7 @@ struct pair{
 void string_to_pairs(char *,struct pair *);
 void unit_test_string_to_pair();
 
+
+/**it hast to be in critical section*/
 void pairs_to_line_eq(struct pair*,char *);
 #endif
