@@ -77,10 +77,36 @@ int main(int argc , char ** argv){
         ++i;
       }
 
-      printf("%s\n",file);
+printf("%s\n",file);
+printf("%s\n","file basıldı" );
+  struct pair pairs[10];
+printf("%s\n","pair oluşturuldu" );
+int junk1,junk2;
+  sscanf(file,"(%d,%d),(%d,%d),(%d,%d),(%d,%d),(%d,%d),(%d,%d),(%d,%d),(%d,%d),(%d,%d),(%d,%d),%dx + %d",
+    &(pairs[0].x),&(pairs[0].y),
+    &(pairs[1].x),&(pairs[1].y),
+    &(pairs[2].x),&(pairs[2].y),
+    &(pairs[3].x),&(pairs[3].y),
+    &(pairs[4].x),&(pairs[4].y),
+    &(pairs[5].x),&(pairs[5].y),
+    &(pairs[6].x),&(pairs[6].y),
+    &(pairs[7].x),&(pairs[7].y),
+    &(pairs[8].x),&(pairs[8].y),
+    &(pairs[9].x),&(pairs[9].y),
+    &junk1,&junk2
+  );
+
+    printf("burdayım\n");
+    for (size_t i = 0; i < 10; i++) {
+      printf("x=%d,y=%d\n",pairs[i].x,pairs[i].y );
+    }
+
+
       printf("dosya bitti \n");
 
+
       free(file);
+
     exit(0);
     }
 
