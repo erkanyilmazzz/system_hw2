@@ -84,21 +84,43 @@ printf("%s\n",file);
 printf("%s\n","file basıldı" );
   struct pair pairs[10];
   int a,b;
-printf("%s\n","pair oluşturuldu" );
+  char str[500];
+  str[0]='\0';
+  char writed_line[500];
+  writed_line[0]='\0';
 
-   formated_string_to_pairs(file,pairs,&a,&b);
-   print_pairs(pairs);
-   printf("%dx+%d\n",a,b );
+printf("%s\n","pair oluşturuldu" );
+  /**first line */
+
+   i=0;
+   while(file[i]!='\n'){
+     str[i]=file[i];
+    ++i;
+   }
+   formated_string_to_pairs(str,pairs,&a,&b);
+   //print_pairs(pairs);
+   //printf("%dx+%d\n",a,b );
+
+   MAE=get_MAE(pairs,a,b);
+   MSE=get_MSE(pairs,a,b);
+   RMSE=get_RMSE(pairs,a,b);
+
+   sprintf(writed_line,"%s,%lf,%lf,%lf",str,MAE,MSE,RMSE);
+   printf("%s\n",writed_line);
+
+
+
+   /**first line*/
 
   i =0;
   int j;
   int last_newline=0;
-  char str[500];
   str[0]='\0';
+  writed_line[0]='\0';
   while(file[i]!='\0'){
     if(file[i]=='\n'){
 
-      printf("\n%s i=%d last_newline=%d\n","ueni stır",i,last_newline );
+      //printf("\n%s i=%d last_newline=%d\n","ueni stır",i,last_newline );
       //printf("\nyeni satır:::::");
       for (size_t j = 0; j < i-last_newline; j++) {
         str[j]=file[i+1+j];
@@ -106,17 +128,18 @@ printf("%s\n","pair oluşturuldu" );
       }
       //printf("yeni satır:::%s\n",str );
       formated_string_to_pairs(str,pairs,&a,&b);
-      print_pairs(pairs);
-      printf("%dx+%d\n",a,b );
-      //double MAE=0,MSE=0,RMSE=0;
+      //print_pairs(pairs);
+      //printf("%dx+%d\n",a,b );
+
 
       MAE=get_MAE(pairs,a,b);
       MSE=get_MSE(pairs,a,b);
       RMSE=get_RMSE(pairs,a,b);
 
-      printf("mae %lf mse%lf rmse%lf\n",MAE,MSE,RMSE);
+      //printf("mae %lf mse%lf rmse%lf\n",MAE,MSE,RMSE);
 
-
+      sprintf(writed_line,"%s,%lf,%lf,%lf",str,MAE,MSE,RMSE);
+      printf("%s\n",writed_line);
 
 
 
