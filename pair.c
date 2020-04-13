@@ -4,7 +4,7 @@
 
 void string_to_pairs(char *b,struct pair *p){
   int size=strlen(b);
-  printf("\nsize:%d\n",size);
+  //printf("\nsize:%d\n",size);
   int i;
   for(i=0;i<size;++i){
     if(i==0){

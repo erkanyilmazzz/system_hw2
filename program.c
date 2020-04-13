@@ -11,21 +11,12 @@
 #include <errno.h>
 
 
-void critical(){
-  int i=0;
-  for(i=0;i<0;++i){
-    printf("%d\n",i);
-    sleep(1);
-  }
-}
-
 void handler(int sig){
-printf("%s\n","I am in handler");
+  //printf("%s\n","I am in handler");
 }
 
 
 int main(int argc , char ** argv){
-  //unit_test_string_to_pair();
 
   char *inputPath;
   char *outputPath;
@@ -44,181 +35,141 @@ int main(int argc , char ** argv){
   }
 
 
+      /**create temp file*/
+      char tmp_path[15]="/tmp/XXXXXX";
+      int temp_fd=mkstemp(tmp_path);
+      printf("generate temp file %s",tmp_path);
 
-        /**create temp file*/
-        char tmp_path[15]="/tmp/XXXXXX";
-        int temp_fd=mkstemp(tmp_path);
-        printf("generate temp file %s",tmp_path);
-        //write(temp_fd,"erkan",strlen("erkan"));
 
 
+    printf("\n\n\ninput path\t\t:::%s\noutputh path\t\t:::%s\n",inputPath,outputPath );
 
+    int child_pid=fork();
+    if(child_pid==0){
 
+      printf("\nchild waiting \n");
 
-  /**fork and create other  process*/
-int child_pid=fork();
-if (0==child_pid){
-//this is child proccess
-//p2
+      sigset_t block,past;
+      sigfillset(&block);
+      signal(2,handler);
+      sigprocmask(SIG_BLOCK,&block,&past);
+      sigsuspend(&past);
+      sigprocmask(SIG_UNBLOCK,&block,&past);
+      printf("devamke ");
 
-printf("%s %d\n","this is child proccess pid is ",getpid() );
 
+      //reading temp file
+      lseek(temp_fd,SEEK_SET,0);
+      char buf;
+      printf("okunan geçici dosya:\n");
+      while(read(temp_fd,&buf,1)==1){
+        printf("%c",buf);
+      }
+      printf("dosya bitti \n");
 
+    exit(0);
+    }
 
 
 
+printf("\nburaya girdi 1\n");
 
 
 
 
 
 
-exit(EXIT_SUCCESS);
-}else if (0>child_pid){
-// error
-perror("error while forking\n");
-}else {/**parent process*/
-  //p1
-printf("%s %d\n","this is parant proccess pid is ",getpid() );
+  /**do some stuf read write whatever*/
 
-}
+  /**opening the input file*/
+  int input_fd=open(inputPath,O_RDWR|O_SYNC,0666);
+  if(input_fd<0){
+    perror("error while opening file");
+    exit(-1);
+  }
 
+  printf("\n");
 
+  /*declare what I use*/
+  char buffer[21];
+  char temp_print_srt[200];
+  temp_print_srt[0]='\0';
+  char temp_pair[20];
+  temp_pair[0]='\0';
+  struct pair pairs[10];
+  char eq[15];
 
 
+printf("\nburaya girdi 2\n");
+  /**init signal sets*/
+  sigset_t SIGINT_wait,sigorig_wait_usr2;//SIGINT değişecek
+  struct sigaction sa;
 
+  sigemptyset(&SIGINT_wait);//burda da
+  sigaddset(&SIGINT_wait, SIGINT);//burda da
 
+  /**for sigaction*/
+  sigemptyset(&sa.sa_mask);
+  sa.sa_flags = 0;
+  sa.sa_handler = handler;
 
-  printf("input path\t\t:::%s\noutputh path\t\t:::%s\n",inputPath,outputPath );
 
 
+printf("\nburaya girdi 3\n");
 
-      /**do some stuf read write whatever*/
+  /**read input file*/
+  while(read(input_fd,buffer,20)==20){
+    buffer[20]='\0';
+    string_to_pairs(buffer,pairs);
+    int i;
+    for(i=0;i<10;++i){
+      sprintf(temp_pair,"(%d,%d),",pairs[i].x,pairs[i].y);
+      strcat(temp_print_srt,temp_pair);
+    }
+    //printf("%s",temp_print_srt );
 
-        /**opening the input file*/
-        int input_fd=open(inputPath,O_RDWR|O_SYNC,0666);
-        if(input_fd<0){
-          perror("error while opening file");
-          exit(-1);
-        }
+    /*write pairs*/
+    write(temp_fd,temp_print_srt,strlen(temp_print_srt));
+    temp_print_srt[0]='\0';
 
-        printf("\n");
 
-        /*declare what I use*/
-        char buffer[21];
-        char temp_print_srt[200];
-        temp_print_srt[0]='\0';
-        char temp_pair[20];
-        temp_pair[0]='\0';
-        struct pair pairs[10];
-        char eq[15];
+    sigset_t blocking_signals;
+    sigemptyset(&blocking_signals);
+    sigfillset(&blocking_signals);
+    sigprocmask(SIG_BLOCK,&blocking_signals,NULL);
 
+    /**critical section find eq*/
+    pairs_to_line_eq(pairs,eq);
 
-        /**init signal sets*/
-        sigset_t sigusr2_wait,sigorig_wait_usr2;
-        struct sigaction sa;
+    sigprocmask(SIG_UNBLOCK,&blocking_signals,NULL);
 
-        sigemptyset(&sigusr2_wait);
-        sigaddset(&sigusr2_wait, SIGUSR2);
 
 
+    //printf("%s\n",eq );
 
-        /**for sigaction*/
-        sigemptyset(&sa.sa_mask);
-        sa.sa_flags = 0;
-        sa.sa_handler = handler;
+    /*write eq*/
+    write(temp_fd,eq,strlen(eq));
+    write(temp_fd,"\n",1);
 
 
+  }
 
+printf("\nburaya girdi 4\n");
 
 
-        /**read input file*/
-        while(read(input_fd,buffer,20)==20){
-          buffer[20]='\0';
-          string_to_pairs(buffer,pairs);
-          int i;
-          for(i=0;i<10;++i){
-              sprintf(temp_pair,"(%d,%d),",pairs[i].x,pairs[i].y);
-              strcat(temp_print_srt,temp_pair);
-          }
-          printf("%s",temp_print_srt );
 
-          /*write pairs*/
-          write(temp_fd,temp_print_srt,strlen(temp_print_srt));
-          temp_print_srt[0]='\0';
 
+    close(input_fd);
 
-          sigset_t blocking_signals;
-          sigemptyset(&blocking_signals);
-          sigfillset(&blocking_signals);
-          sigprocmask(SIG_BLOCK,&blocking_signals,NULL);
 
-          /**critical section find eq*/
-          pairs_to_line_eq(pairs,eq);
+    /**temp file okudum */
+    /**unlink and close temp file*/
+    unlink(tmp_path);
+    close(temp_fd);
 
-          sigprocmask(SIG_UNBLOCK,&blocking_signals,NULL);
+    free(inputPath);
+    free(outputPath);
 
-
-
-          printf("%s\n",eq );
-
-          /*write eq*/
-          write(temp_fd,eq,strlen(eq));
-          write(temp_fd,"\n",1);
-
-          kill( child_pid,SIGUSR2);//I wrote signal
-
-          /*blocking for wait**/
-          if (sigprocmask(SIG_BLOCK, &sigusr2_wait, &sigorig_wait_usr2) == -1)
-            perror("sigprocmask - SIG_BLOCK");
-
-
-          if (sigaction(SIGUSR2, &sa, NULL) == -1)
-            perror("sigaction");
-          if (sigaction(SIGQUIT, &sa, NULL) == -1)
-            perror("sigaction");
-
-
-            /*waiting*/
-            printf("sigusr2 bekleniyor\n");
-            if (sigsuspend(&sigorig_wait_usr2) == -1 && errno != EINTR)
-              perror("sigsuspend");
-
-
-            if (sigprocmask(SIG_SETMASK, &sigorig_wait_usr2, NULL) == -1)
-              perror("sigprocmask - SIG_SETMASK");
-
-            printf("%s\n","devamke" );
-
-
-        }
-
-
-        close(input_fd);
-        /**bütün satırlar bitti p2 ye signyal yolla */
-
-
-
-
-
-
-
-
-        /**temp file okudum */
-        lseek(temp_fd,SEEK_SET,0);
-        char buf;
-        printf("okunan geçici dosya:\n");
-        while(read(temp_fd,&buf,1)==1){
-          printf("%c",buf);
-        }
-        printf("dosya bitti \n");
-
-        /**unlink and close temp file*/
-        unlink(tmp_path);
-        close(temp_fd);
-
-
-  free(inputPath);
-  free(outputPath);
-  return EXIT_SUCCESS;
+    wait(NULL);
+    return EXIT_SUCCESS;
 }
