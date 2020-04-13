@@ -58,15 +58,29 @@ int main(int argc , char ** argv){
       printf("devamke ");
 
 
+      /*dosya sizesı*/
+      lseek(temp_fd,SEEK_SET,0);
+      int size=0;
+      char buf;
+      while(read(temp_fd,&buf,1)==1){
+        ++size;
+      }
+
       //reading temp file
       lseek(temp_fd,SEEK_SET,0);
-      char buf;
+
       printf("okunan geçici dosya:\n");
+      int i=0;
+      char *file=malloc(sizeof(char)*size);
       while(read(temp_fd,&buf,1)==1){
-        printf("%c",buf);
+        file[i]=buf;
+        ++i;
       }
+
+      printf("%s\n",file);
       printf("dosya bitti \n");
 
+      free(file);
     exit(0);
     }
 
@@ -155,6 +169,7 @@ printf("\nburaya girdi 3\n");
   }
 
 printf("\nburaya girdi 4\n");
+printf("--%d-- \n",kill(child_pid,2) );
 
 
 
