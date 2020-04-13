@@ -34,6 +34,7 @@ int main(int argc , char ** argv){
       exit(EXIT_FAILURE);
   }
 
+  //unit_test_formated_sitring_to_pair();
 
       /**create temp file*/
       char tmp_path[15]="/tmp/XXXXXX";
@@ -46,6 +47,7 @@ int main(int argc , char ** argv){
 
     int child_pid=fork();
     if(child_pid==0){
+      double MAE=0,MSE=0,RMSE=0;
 
       printf("\nchild waiting \n");
 
@@ -76,30 +78,55 @@ int main(int argc , char ** argv){
         file[i]=buf;
         ++i;
       }
+      file[i-1]='\0';
 
 printf("%s\n",file);
 printf("%s\n","file basıldı" );
   struct pair pairs[10];
+  int a,b;
 printf("%s\n","pair oluşturuldu" );
-int junk1,junk2;
-  sscanf(file,"(%d,%d),(%d,%d),(%d,%d),(%d,%d),(%d,%d),(%d,%d),(%d,%d),(%d,%d),(%d,%d),(%d,%d),%dx + %d",
-    &(pairs[0].x),&(pairs[0].y),
-    &(pairs[1].x),&(pairs[1].y),
-    &(pairs[2].x),&(pairs[2].y),
-    &(pairs[3].x),&(pairs[3].y),
-    &(pairs[4].x),&(pairs[4].y),
-    &(pairs[5].x),&(pairs[5].y),
-    &(pairs[6].x),&(pairs[6].y),
-    &(pairs[7].x),&(pairs[7].y),
-    &(pairs[8].x),&(pairs[8].y),
-    &(pairs[9].x),&(pairs[9].y),
-    &junk1,&junk2
-  );
+
+   formated_string_to_pairs(file,pairs,&a,&b);
+   print_pairs(pairs);
+   printf("%dx+%d\n",a,b );
+
+  i =0;
+  int j;
+  int last_newline=0;
+  char str[500];
+  str[0]='\0';
+  while(file[i]!='\0'){
+    if(file[i]=='\n'){
+
+      printf("\n%s i=%d last_newline=%d\n","ueni stır",i,last_newline );
+      //printf("\nyeni satır:::::");
+      for (size_t j = 0; j < i-last_newline; j++) {
+        str[j]=file[i+1+j];
+        //printf("%c",str[j]);
+      }
+      //printf("yeni satır:::%s\n",str );
+      formated_string_to_pairs(str,pairs,&a,&b);
+      print_pairs(pairs);
+      printf("%dx+%d\n",a,b );
+      //double MAE=0,MSE=0,RMSE=0;
+
+      MAE=get_MAE(pairs,a,b);
+      MSE=get_MSE(pairs,a,b);
+      RMSE=get_RMSE(pairs,a,b);
+
+      printf("mae %lf mse%lf rmse%lf\n",MAE,MSE,RMSE);
+
+
+
+
+
+      last_newline=i;
+    }
+    ++i;
+  }
+
 
     printf("burdayım\n");
-    for (size_t i = 0; i < 10; i++) {
-      printf("x=%d,y=%d\n",pairs[i].x,pairs[i].y );
-    }
 
 
       printf("dosya bitti \n");
