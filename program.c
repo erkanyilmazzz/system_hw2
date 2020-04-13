@@ -59,6 +59,15 @@ int main(int argc , char ** argv){
       sigprocmask(SIG_UNBLOCK,&block,&past);
       printf("devamke ");
 
+      int output_fd;
+      output_fd=open(outputPath, O_RDWR|O_SYNC,0666);
+      if(output_fd<0){
+        perror("outputfile");
+        exit(-1);
+      }
+
+
+
 
       /*dosya sizesı*/
       lseek(temp_fd,SEEK_SET,0);
@@ -84,7 +93,7 @@ printf("%s\n",file);
 printf("%s\n","file basıldı" );
   struct pair pairs[10];
   int a,b;
-  char str[500];
+  char str[5000];
   str[0]='\0';
   char writed_line[500];
   writed_line[0]='\0';
@@ -107,7 +116,8 @@ printf("%s\n","pair oluşturuldu" );
 
    sprintf(writed_line,"%s,%lf,%lf,%lf",str,MAE,MSE,RMSE);
    printf("%s\n",writed_line);
-
+   write(output_fd,writed_line,strlen(writed_line));
+   write(output_fd,"\n",1);
 
 
    /**first line*/
@@ -120,29 +130,34 @@ printf("%s\n","pair oluşturuldu" );
   while(file[i]!='\0'){
     if(file[i]=='\n'){
 
-      //printf("\n%s i=%d last_newline=%d\n","ueni stır",i,last_newline );
-      //printf("\nyeni satır:::::");
       for (size_t j = 0; j < i-last_newline; j++) {
         str[j]=file[i+1+j];
-        //printf("%c",str[j]);
       }
-      //printf("yeni satır:::%s\n",str );
       formated_string_to_pairs(str,pairs,&a,&b);
-      //print_pairs(pairs);
-      //printf("%dx+%d\n",a,b );
-
 
       MAE=get_MAE(pairs,a,b);
       MSE=get_MSE(pairs,a,b);
       RMSE=get_RMSE(pairs,a,b);
 
-      //printf("mae %lf mse%lf rmse%lf\n",MAE,MSE,RMSE);
+      char floats[30];
+      int size=strlen(str);
+      str[size-1]='\0';
+      printf("%s",str );
+      printf("%lf %lf %lf \n",MAE,MSE,RMSE);
+      write(output_fd,str,strlen(str));
+      sprintf(floats,"%lf %lf %lf \n",MAE,MSE,RMSE);
 
-      sprintf(writed_line,"%s,%lf,%lf,%lf",str,MAE,MSE,RMSE);
+      write(output_fd,floats,strlen(floats));
+
+
+
+/*
       printf("%s\n",writed_line);
+      write(output_fd,writed_line,strlen(writed_line));
+      write(output_fd,"\n",1);
+*/
 
-
-
+      str[0]='\0';
       last_newline=i;
     }
     ++i;
@@ -154,7 +169,7 @@ printf("%s\n","pair oluşturuldu" );
 
       printf("dosya bitti \n");
 
-
+      close(output_fd);
       free(file);
 
     exit(0);
